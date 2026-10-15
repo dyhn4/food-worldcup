@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>배달 메뉴 월드컵</title>
+<meta name="description" content="배달앱 인기 메뉴 117종으로 하는 이상형 월드컵. 오늘 저녁 뭐 시켜먹을지 친구들과 골라보세요.">
+<meta property="og:title" content="오늘 뭐 시켜먹지? 배달 메뉴 월드컵">
+<meta property="og:description" content="치킨, 떡볶이, 마라탕… 117가지 배달 메뉴 중 오늘의 우승 메뉴를 골라보세요!">
+<meta property="og:image" content="https://dyhn4.github.io/food-worldcup/img/f13.jpg">
+<meta property="og:url" content="https://dyhn4.github.io/food-worldcup/">
+<meta property="og:type" content="website">
+<style>html{color-scheme:light}body{margin:0;font:14px system-ui,sans-serif;-webkit-text-size-adjust:100%}img{max-width:100%}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head>
+<body>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one-screen app. Order-ticket header strip, two photo cards facing off around a round "VS" stamp. */
+:root{
+  --bg:#F2F4EE; --surface:#FFFFFF; --ink:#18211C; --muted:#5E6A62; --line:#D9DED5;
+  --accent:#D63A1F; --accent-ink:#FFFFFF; --yolk:#F4B400; --yolk-ink:#2A1E00; --chip:#E6EAE1;
+  --shadow:0 1px 0 rgba(24,33,28,.06),0 8px 24px -12px rgba(24,33,28,.25);
+  --f-display:"Black Han Sans","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111512; --surface:#1B201C; --ink:#ECEFE8; --muted:#9AA59D; --line:#2D342F;
+  --accent:#F0573A; --accent-ink:#FFFFFF; --yolk:#F6C33C; --yolk-ink:#2A1E00; --chip:#252B27;
+  --shadow:0 1px 0 rgba(0,0,0,.4),0 10px 28px -14px rgba(0,0,0,.8); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111512; --surface:#1B201C; --ink:#ECEFE8; --muted:#9AA59D; --line:#2D342F;
+  --accent:#F0573A; --accent-ink:#FFFFFF; --yolk:#F6C33C; --yolk-ink:#2A1E00; --chip:#252B27;
+  --shadow:0 1px 0 rgba(0,0,0,.4),0 10px 28px -14px rgba(0,0,0,.8); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:16px;padding-block:20px 40px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:3px solid var(--yolk);outline-offset:3px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:.01em}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-bottom:14px;border-bottom:2px dashed var(--line)}
+.brand h1{font-size:clamp(26px,4.4vw,38px);line-height:1.05}
+.brand h1 em{font-style:normal;color:var(--accent)}
+.ticket{font-family:var(--f-mono);font-size:12px;color:var(--muted);letter-spacing:.06em}
+
+.setup{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:28px;padding-top:24px;align-items:start}
+.panel{display:flex;flex-direction:column;gap:22px}
+.lead{font-size:16px;color:var(--muted);max-width:40ch;margin:0}
+.group{display:flex;flex-direction:column;gap:10px}
+.label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.08em}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-weight:600;font-size:14px;display:inline-flex;gap:6px;align-items:center}
+.chip .n{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.chip[aria-pressed="true"] .n{color:inherit;opacity:.7}
+.sizes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.size{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.size b{font-family:var(--f-display);font-weight:400;font-size:24px;line-height:1}
+.size span{font-size:12px;color:var(--muted)}
+.size[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.size[aria-pressed="true"] b{color:var(--accent)}
+.size:disabled{opacity:.4;cursor:not-allowed}
+.hint{font-size:13px;color:var(--muted);margin:0;min-height:1.5em}
+.go{background:var(--accent);color:var(--accent-ink);border:0;border-radius:14px;padding:16px 20px;font-family:var(--f-display);font-size:22px;display:flex;justify-content:space-between;align-items:center;gap:12px;box-shadow:var(--shadow);transition:transform .12s}
+.go:hover{transform:translateY(-2px)}
+.go:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.go small{font-family:var(--f-mono);font-size:13px;opacity:.85}
+.mosaic{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
+.mosaic figure{margin:0;position:relative;aspect-ratio:1;max-width:100%;border-radius:8px;overflow:hidden;background:var(--chip)}
+.mosaic img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .2s}
+.mosaic figure.off img{opacity:.18;filter:grayscale(1)}
+.mosaic figcaption{position:absolute;inset:auto 0 0 0;padding:14px 5px 4px;font-size:11px;font-weight:600;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.72));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mosaic figure.off figcaption{opacity:.5}
+.record{border-top:2px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:8px}
+.record ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.record li{display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center;font-size:14px}
+.record .rk,.record .ct{font-family:var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.record .bar{height:6px;border-radius:3px;background:var(--yolk);display:block;margin-top:3px}
+.record .empty{font-size:13px;color:var(--muted);margin:0}
+.linkbtn{background:none;border:0;padding:0;color:var(--muted);text-decoration:underline;font-size:12px;align-self:flex-start}
+
+.game{padding-top:20px;display:flex;flex-direction:column;gap:16px}
+.status{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.status h2{font-size:clamp(30px,5vw,44px);line-height:1}
+.status h2 .of{font-family:var(--f-mono);font-size:15px;color:var(--muted);margin-left:8px;letter-spacing:0;font-variant-numeric:tabular-nums}
+.tools{display:flex;gap:8px}
+.ghost{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 12px;font-size:13px;font-weight:600}
+.ghost:disabled{opacity:.4;cursor:not-allowed}
+.progress{height:8px;background:var(--chip);border-radius:4px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.arena{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;position:relative}
+.card{background:var(--surface);border:0;padding:0;border-radius:18px;overflow:hidden;box-shadow:var(--shadow);text-align:left;display:flex;flex-direction:column;transition:transform .18s,opacity .25s,box-shadow .18s}
+.card:hover{transform:translateY(-4px)}
+.card:focus-visible{outline:3px solid var(--yolk);outline-offset:3px}
+.card .ph{aspect-ratio:4/3;width:100%;max-width:100%;background:var(--chip);overflow:hidden}
+.card img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.card:hover img{transform:scale(1.04)}
+.card .meta{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:14px 18px 16px}
+.card .nm{font-family:var(--f-display);font-size:clamp(24px,3.6vw,34px);line-height:1.1}
+.tag{font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--chip);color:var(--muted);white-space:nowrap}
+.card.win{box-shadow:0 0 0 4px var(--accent),var(--shadow);transform:scale(1.02)}
+.card.lose{opacity:.25;transform:scale(.97)}
+.vs{position:absolute;left:50%;top:calc((100% - 64px)/2);transform:translate(-50%,-50%) rotate(-8deg);width:76px;height:76px;border-radius:50%;background:var(--yolk);color:var(--yolk-ink);display:grid;place-items:center;font-family:var(--f-display);font-size:30px;box-shadow:0 0 0 6px var(--bg);pointer-events:none;z-index:2}
+.keys{font-size:12px;color:var(--muted);text-align:center;margin:0}
+
+.result{padding-top:24px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:28px;align-items:start}
+.champ{background:var(--surface);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
+.champ .ph{aspect-ratio:4/3;max-width:100%;position:relative;background:var(--chip)}
+.champ img{width:100%;height:100%;object-fit:cover;display:block}
+.stamp{position:absolute;top:14px;left:14px;background:var(--accent);color:var(--accent-ink);font-family:var(--f-display);font-size:18px;padding:6px 14px;border-radius:8px;transform:rotate(-4deg)}
+.champ .meta{padding:18px 22px 22px;display:flex;flex-direction:column;gap:6px}
+.champ .eyebrow{font-size:13px;color:var(--muted);font-weight:600}
+.champ h2{font-size:clamp(34px,6vw,56px);line-height:1.05}
+.champ h2 em{font-style:normal;color:var(--accent)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.actions a,.actions button{border-radius:12px;padding:10px 16px;font-weight:700;font-size:14px;text-decoration:none;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.actions .primary{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.side{display:flex;flex-direction:column;gap:18px}
+.receipt{background:var(--surface);border-radius:14px;padding:18px 18px 14px;box-shadow:var(--shadow);font-size:14px}
+.receipt h3{font-size:20px;margin-bottom:10px}
+.receipt ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.receipt li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--line)}
+.receipt li:last-child{border-bottom:0}
+.receipt .rd{font-family:var(--f-mono);font-size:12px;color:var(--muted);width:44px}
+.receipt .opp{color:var(--muted);font-size:13px}
+.podium{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.podium figure:first-child{grid-column:1/-1}
+.podium figure{margin:0;background:var(--surface);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.podium .ph{aspect-ratio:16/10;max-width:100%;background:var(--chip)}
+.podium img{width:100%;height:100%;object-fit:cover;display:block}
+.podium figcaption{padding:8px 12px;font-size:13px;display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.podium figcaption b{font-family:var(--f-display);font-weight:400;font-size:17px}
+.podium figcaption span{color:var(--muted);font-size:12px}
+
+.ai{margin-top:28px;background:var(--surface);border-radius:18px;box-shadow:var(--shadow);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);overflow:hidden}
+.ai-l{padding:20px 22px;display:flex;flex-direction:column;gap:14px}
+.ai-l h2{font-size:clamp(22px,3.2vw,28px);line-height:1.15}
+.ai-l h2 em{font-style:normal;color:var(--accent)}
+.ai-l p{margin:0;font-size:14px;color:var(--muted)}
+.moods .chip{font-size:13px;padding:6px 12px}
+.ai-row{display:flex;gap:8px;flex-wrap:wrap}
+.ai-row input{flex:1 1 180px;min-width:0;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:10px 12px;font:inherit;font-size:14px}
+.ai-row input:focus-visible{outline:3px solid var(--yolk);outline-offset:1px}
+.ask{background:var(--ink);color:var(--bg);border:0;border-radius:10px;padding:10px 16px;font-weight:700;font-size:14px;white-space:nowrap}
+.ask:disabled{opacity:.5;cursor:wait}
+.ai-r{position:relative;min-height:240px;background:var(--chip);display:flex}
+.ai-r .ph{position:absolute;inset:0}
+.ai-r .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ai-r .bubble{position:relative;margin:auto 14px 14px;align-self:flex-end;background:var(--surface);color:var(--ink);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:4px;width:calc(100% - 28px)}
+.ai-r .bubble b{font-family:var(--f-display);font-weight:400;font-size:26px;line-height:1.1}
+.ai-r .bubble b small{font-family:var(--f-body);font-size:12px;font-weight:700;color:var(--muted);margin-left:6px}
+.ai-r .bubble span{font-size:14px}
+.ai-r .bubble .by{font-size:11px;color:var(--muted);font-family:var(--f-mono)}
+.ai-r .idle{margin:auto;padding:24px;text-align:center;color:var(--muted);font-size:14px;max-width:30ch}
+.ai-r .idle strong{display:block;font-family:var(--f-display);font-weight:400;font-size:44px;color:var(--accent);line-height:1;margin-bottom:8px}
+.ai-r.loading .idle strong{animation:wob .6s ease-in-out infinite alternate}
+@keyframes wob{from{transform:rotate(-8deg)}to{transform:rotate(8deg)}}
+
+footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+footer summary{cursor:pointer}
+footer ul{columns:3 200px;padding-left:18px;margin:10px 0 0}
+footer a{color:inherit}
+
+@media (max-width:760px){
+  .setup,.result,.ai{grid-template-columns:minmax(0,1fr)}
+  .ai-r{min-height:220px}
+  .mosaic{grid-template-columns:repeat(5,1fr);max-height:300px;overflow-y:auto;border-radius:10px}
+  .arena{grid-template-columns:minmax(0,1fr);gap:12px}
+  .card .ph{aspect-ratio:16/9}
+  .card .meta{padding:10px 14px 12px}
+  .vs{top:50%;width:58px;height:58px;font-size:22px;box-shadow:0 0 0 5px var(--bg)}
+  .keys{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><h1>오늘 뭐 <em>시켜먹지</em>?</h1></div>
+    <div class="ticket" id="ticket">배달 메뉴 월드컵</div>
+  </header>
+
+
+  <section class="setup" id="setup">
+    <div class="panel">
+      <p class="lead">한식부터 마라탕까지, 배달앱에서 자주 시키는 메뉴끼리 1:1로 붙여요. 끌리는 쪽만 계속 고르면 오늘의 메뉴가 정해집니다.</p>
+      <div class="group">
+        <span class="label">어떤 음식을 넣을까요</span>
+        <div class="chips" id="cats"></div>
+      </div>
+      <div class="group">
+        <span class="label">대진 규모</span>
+        <div class="sizes" id="sizes"></div>
+        <p class="hint" id="hint"></p>
+      </div>
+      <button class="go" id="go"><span>월드컵 시작</span><small id="goInfo"></small></button>
+      <div class="record">
+        <span class="label">내 우승 기록 (이 브라우저)</span>
+        <div id="record"></div>
+      </div>
+    </div>
+    <div class="mosaic" id="mosaic" aria-label="참가 메뉴 미리보기"></div>
+  </section>
+
+  <section class="ai" id="ai" aria-label="AI 저녁 메뉴 추천">
+    <div class="ai-l">
+      <h2>고르기도 귀찮다면, <em>딱 하나</em> 골라줄게요</h2>
+      <p>오늘 기분을 고르거나 한 줄로 적으면 배달앱 인기 메뉴 중에서 하나를 추천해요. 아무것도 안 골라도 돼요.</p>
+      <div class="chips moods" id="moods"></div>
+      <div class="ai-row">
+        <label for="aiNote" hidden>오늘 상황 한 줄</label>
+        <input id="aiNote" type="text" maxlength="80" placeholder="예) 비 오고 피곤함, 둘이서 먹을 거">
+        <button class="ask" id="ask">저녁 추천받기</button>
+      </div>
+    </div>
+    <div class="ai-r" id="aiOut" aria-live="polite">
+      <div class="idle"><strong>?</strong>버튼을 누르면 오늘 저녁 메뉴와 추천 이유가 사진과 함께 여기에 나와요.</div>
+    </div>
+  </section>
+
+  <section class="game" id="game" hidden>
+    <div class="status">
+      <h2 id="roundName">32강<span class="of" id="roundOf"></span></h2>
+      <div class="tools">
+        <button class="ghost" id="undo">← 되돌리기</button>
+        <button class="ghost" id="quit">처음으로</button>
+      </div>
+    </div>
+    <div class="progress"><i id="bar"></i></div>
+    <div class="arena" id="arena">
+      <button class="card" id="cardA"></button>
+      <button class="card" id="cardB"></button>
+      <div class="vs" aria-hidden="true">VS</div>
+    </div>
+    <p class="keys">키보드 ← → 로도 고를 수 있어요 · Backspace 되돌리기</p>
+  </section>
+
+  <section class="result" id="result" hidden></section>
+
+  <footer>
+    <details>
+      <summary>사진 출처: Wikimedia Commons (각 사진의 라이선스는 링크에서 확인)</summary>
+      <ul id="credits"></ul>
+    </details>
+  </footer>
+</div>
+
+<script>
+const MENU = [{"id":"f01","cat":"chk","name":"후라이드치킨","img":"img/f01.jpg","commons":"https://commons.wikimedia.org/wiki/File:Iksan_City_48_Korean_Style_Fried_chicken.jpg"},{"id":"f69","cat":"chk","name":"양념치킨","img":"img/f69.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean.cuisine-Yangnyeom_chicken-01.jpg"},{"id":"f70","cat":"chk","name":"간장치킨","img":"img/f70.jpg","commons":"https://commons.wikimedia.org/wiki/File:Fried_Chicken_in_Soy_Garlic_Sauce_(5052852530).jpg"},{"id":"f71","cat":"chk","name":"닭강정","img":"img/f71.jpg","commons":"https://commons.wikimedia.org/wiki/File:만석닭강정.jpg"},{"id":"f59","cat":"chk","name":"버팔로윙","img":"img/f59.jpg","commons":"https://commons.wikimedia.org/wiki/File:Buffalo_wings-01.jpg"},{"id":"f31","cat":"pza","name":"피자","img":"img/f31.jpg","commons":"https://commons.wikimedia.org/wiki/File:Pizza-3007395.jpg"},{"id":"f54","cat":"pza","name":"까르보나라","img":"img/f54.jpg","commons":"https://commons.wikimedia.org/wiki/File:Espaguetis_carbonara.jpg"},{"id":"f101","cat":"pza","name":"토마토 파스타","img":"img/f101.jpg","commons":"https://commons.wikimedia.org/wiki/File:Tagliatelle_al_ragù_(image_modified).jpg"},{"id":"f33","cat":"pza","name":"스테이크","img":"img/f33.jpg","commons":"https://commons.wikimedia.org/wiki/File:Steak_with_shitaki_mushrooms.jpg"},{"id":"f58","cat":"pza","name":"리조또","img":"img/f58.jpg","commons":"https://commons.wikimedia.org/wiki/File:Risotto_with_speck_and_goat_cheese_(6101067436).jpg"},{"id":"f57","cat":"pza","name":"감바스","img":"img/f57.jpg","commons":"https://commons.wikimedia.org/wiki/File:Gambas_al_ajillo.jpg"},{"id":"f100","cat":"pza","name":"함박스테이크","img":"img/f100.jpg","commons":"https://commons.wikimedia.org/wiki/File:Hamburg-Steak.jpg"},{"id":"f04","cat":"snk","name":"떡볶이","img":"img/f04.jpg","commons":"https://commons.wikimedia.org/wiki/File:Tteokbokki.JPG"},{"id":"f72","cat":"snk","name":"라볶이","img":"img/f72.jpg","commons":"https://commons.wikimedia.org/wiki/File:Ra-bokki.jpg"},{"id":"f05","cat":"snk","name":"김밥","img":"img/f05.jpg","commons":"https://commons.wikimedia.org/wiki/File:Gimbap_(pixabay).jpg"},{"id":"f06","cat":"snk","name":"순대","img":"img/f06.jpg","commons":"https://commons.wikimedia.org/wiki/File:Sundae.jpg"},{"id":"f74","cat":"snk","name":"어묵","img":"img/f74.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean_fishcake_bunsik_eoumuk_01.jpg"},{"id":"f75","cat":"snk","name":"쫄면","img":"img/f75.jpg","commons":"https://commons.wikimedia.org/wiki/File:Boiled_jjolmyeon.jpg"},{"id":"f76","cat":"snk","name":"라면","img":"img/f76.jpg","commons":"https://commons.wikimedia.org/wiki/File:A_spicy_ramyeon.jpg"},{"id":"f02","cat":"meat","name":"족발","img":"img/f02.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean.food-Jokbal-01.jpg"},{"id":"f03","cat":"meat","name":"보쌈","img":"img/f03.jpg","commons":"https://commons.wikimedia.org/wiki/File:KOCIS_BOSSAM,_napa_wraps_with_pork_(4618280268).jpg"},{"id":"f07","cat":"meat","name":"삼겹살","img":"img/f07.jpg","commons":"https://commons.wikimedia.org/wiki/File:Samgyeopsal-gui.jpg"},{"id":"f08","cat":"meat","name":"곱창","img":"img/f08.jpg","commons":"https://commons.wikimedia.org/wiki/File:Gopchang_2.jpg"},{"id":"f81","cat":"meat","name":"막창","img":"img/f81.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean.food-Makchang-04.jpg"},{"id":"f42","cat":"meat","name":"LA갈비","img":"img/f42.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean.food-Galbi-03.jpg"},{"id":"f17","cat":"meat","name":"불고기","img":"img/f17.jpg","commons":"https://commons.wikimedia.org/wiki/File:Bulgogi_2.jpg"},{"id":"f16","cat":"meat","name":"닭갈비","img":"img/f16.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean_cuisine-Dakgalbi-01.jpg"},{"id":"f66","cat":"meat","name":"제육볶음","img":"img/f66.jpg","commons":"https://commons.wikimedia.org/wiki/File:제육_볶음.jpg"},{"id":"f09","cat":"meat","name":"닭발","img":"img/f09.jpg","commons":"https://commons.wikimedia.org/wiki/File:Chicken_feet.jpg"},{"id":"f41","cat":"meat","name":"육회","img":"img/f41.jpg","commons":"https://commons.wikimedia.org/wiki/File:1001_yukhoe.jpg"},{"id":"f10","cat":"jjim","name":"찜닭","img":"img/f10.jpg","commons":"https://commons.wikimedia.org/wiki/File:Andong-jjimdak.jpg"},{"id":"f39","cat":"jjim","name":"아귀찜","img":"img/f39.jpg","commons":"https://commons.wikimedia.org/wiki/File:Agujjim.jpg"},{"id":"f77","cat":"jjim","name":"갈비찜","img":"img/f77.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean_cuisine-Galbijjim-06.jpg"},{"id":"f78","cat":"jjim","name":"닭볶음탕","img":"img/f78.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean.food-Dakbokemtang-01.jpg"},{"id":"f15","cat":"jjim","name":"감자탕","img":"img/f15.jpg","commons":"https://commons.wikimedia.org/wiki/File:Gamja-tang_2.jpg"},{"id":"f11","cat":"jjim","name":"부대찌개","img":"img/f11.jpg","commons":"https://commons.wikimedia.org/wiki/File:Budae_jjigae_(28587380901).jpg"},{"id":"f12","cat":"jjim","name":"김치찌개","img":"img/f12.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean_stew_dish_-_Kimchi-jjigae_Kimchi_Stew_2019_(01).jpg"},{"id":"f35","cat":"jjim","name":"순두부찌개","img":"img/f35.jpg","commons":"https://commons.wikimedia.org/wiki/File:Sundubu-jjigae.jpg"},{"id":"f117","cat":"jjim","name":"해물탕","img":"img/f117.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean.food-Haemultang-01.jpg"},{"id":"f79","cat":"jjim","name":"육개장","img":"img/f79.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean_soup-Yukgaejang-01.jpg"},{"id":"f37","cat":"jjim","name":"설렁탕","img":"img/f37.jpg","commons":"https://commons.wikimedia.org/wiki/File:Seolleongtang2024.jpg"},{"id":"f38","cat":"jjim","name":"삼계탕","img":"img/f38.jpg","commons":"https://commons.wikimedia.org/wiki/File:Samgye-tang_2.jpg"},{"id":"f40","cat":"jjim","name":"돼지국밥","img":"img/f40.jpg","commons":"https://commons.wikimedia.org/wiki/File:Dwaeji-gukbap.jpg"},{"id":"f80","cat":"jjim","name":"순대국","img":"img/f80.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean_soup_Sundae_gukbap_01.jpg"},{"id":"f13","cat":"kor","name":"비빔밥","img":"img/f13.jpg","commons":"https://commons.wikimedia.org/wiki/File:Dolsot-bibimbap.jpg"},{"id":"f14","cat":"kor","name":"냉면","img":"img/f14.jpg","commons":"https://commons.wikimedia.org/wiki/File:Naengmyeon_(cold_noodles).jpg"},{"id":"f36","cat":"kor","name":"칼국수","img":"img/f36.jpg","commons":"https://commons.wikimedia.org/wiki/File:Haemul-kal-guksu.jpg"},{"id":"f82","cat":"kor","name":"콩국수","img":"img/f82.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean_noodles-Kongguksu-01.jpg"},{"id":"f86","cat":"kor","name":"잔치국수","img":"img/f86.jpg","commons":"https://commons.wikimedia.org/wiki/File:Janchi-guksu.jpg"},{"id":"f87","cat":"kor","name":"비빔국수","img":"img/f87.jpg","commons":"https://commons.wikimedia.org/wiki/File:Bibim-guksu.jpg"},{"id":"f18","cat":"kor","name":"해물파전","img":"img/f18.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean_pancake-Pajeon-05.jpg"},{"id":"f83","cat":"kor","name":"김치볶음밥","img":"img/f83.jpg","commons":"https://commons.wikimedia.org/wiki/File:Kimchi_fried_rice.jpg"},{"id":"f88","cat":"kor","name":"낙지볶음","img":"img/f88.jpg","commons":"https://commons.wikimedia.org/wiki/File:Nakji-bokkeum.jpg"},{"id":"f89","cat":"kor","name":"쭈꾸미볶음","img":"img/f89.jpg","commons":"https://commons.wikimedia.org/wiki/File:Jukkumi-bokkeum_3.jpg"},{"id":"f84","cat":"kor","name":"물회","img":"img/f84.jpg","commons":"https://commons.wikimedia.org/wiki/File:Mulhoe.jpg"},{"id":"f85","cat":"kor","name":"회덮밥","img":"img/f85.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean_food-Hoedeopbap-01.jpg"},{"id":"f19","cat":"chn","name":"짜장면","img":"img/f19.jpg","commons":"https://commons.wikimedia.org/wiki/File:Jajangmyeon.jpg"},{"id":"f20","cat":"chn","name":"짬뽕","img":"img/f20.jpg","commons":"https://commons.wikimedia.org/wiki/File:Jjampong.JPG"},{"id":"f21","cat":"chn","name":"탕수육","img":"img/f21.jpg","commons":"https://commons.wikimedia.org/wiki/File:Tangsuyuk.jpg"},{"id":"f67","cat":"chn","name":"꿔바로우","img":"img/f67.jpg","commons":"https://commons.wikimedia.org/wiki/File:Guōbāoròu.jpg"},{"id":"f44","cat":"chn","name":"깐풍기","img":"img/f44.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean_cuisine-Kkanpunggi-01.jpg"},{"id":"f91","cat":"chn","name":"유린기","img":"img/f91.jpg","commons":"https://commons.wikimedia.org/wiki/File:You-lin-ji_Japan.jpg"},{"id":"f90","cat":"chn","name":"군만두","img":"img/f90.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean_grilled_dumpling-Gunmandu-01.jpg"},{"id":"f92","cat":"chn","name":"양장피","img":"img/f92.jpg","commons":"https://commons.wikimedia.org/wiki/File:Yangjangpi.jpg"},{"id":"f93","cat":"chn","name":"고추잡채","img":"img/f93.jpg","commons":"https://commons.wikimedia.org/wiki/File:Pepper_japchae01.jpg"},{"id":"f24","cat":"chn","name":"마파두부","img":"img/f24.jpg","commons":"https://commons.wikimedia.org/wiki/File:Chen_Mapo_Tofu.jpg"},{"id":"f46","cat":"chn","name":"볶음밥","img":"img/f46.jpg","commons":"https://commons.wikimedia.org/wiki/File:Koh_Mak,_Thailand,_Fried_rice_with_seafood,_Thai_fried_rice.jpg"},{"id":"f22","cat":"chn","name":"마라탕","img":"img/f22.jpg","commons":"https://commons.wikimedia.org/wiki/File:MaLaTang.JPG"},{"id":"f23","cat":"chn","name":"마라샹궈","img":"img/f23.jpg","commons":"https://commons.wikimedia.org/wiki/File:Ma_La_Xiang_Guo.jpg"},{"id":"f45","cat":"chn","name":"훠궈","img":"img/f45.jpg","commons":"https://commons.wikimedia.org/wiki/File:Hot_Pot.jpg"},{"id":"f43","cat":"chn","name":"양꼬치","img":"img/f43.jpg","commons":"https://commons.wikimedia.org/wiki/File:Lamb_kebabs_on_grill_at_Ancient_City_of_Kashi_(20230923224509).jpg"},{"id":"f25","cat":"chn","name":"딤섬","img":"img/f25.jpg","commons":"https://commons.wikimedia.org/wiki/File:Chinese_DimSum_(9023590541).jpg"},{"id":"f26","cat":"jpn","name":"돈가스","img":"img/f26.jpg","commons":"https://commons.wikimedia.org/wiki/File:\"Amai-Yuwaku\"_Special_Loin_Pork_Cutlet1.jpg"},{"id":"f47","cat":"jpn","name":"초밥","img":"img/f47.jpg","commons":"https://commons.wikimedia.org/wiki/File:Sushi_platter.jpg"},{"id":"f49","cat":"jpn","name":"모듬회","img":"img/f49.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korea_style_raw_fish.jpg"},{"id":"f27","cat":"jpn","name":"라멘","img":"img/f27.jpg","commons":"https://commons.wikimedia.org/wiki/File:Shoyu_Ramen（Tokyo_Ramen）_-_01.jpg"},{"id":"f48","cat":"jpn","name":"우동","img":"img/f48.jpg","commons":"https://commons.wikimedia.org/wiki/File:鶏天のうどん.jpg"},{"id":"f52","cat":"jpn","name":"소바","img":"img/f52.jpg","commons":"https://commons.wikimedia.org/wiki/File:Zaru_soba_by_spinachdip.jpg"},{"id":"f28","cat":"jpn","name":"규동","img":"img/f28.jpg","commons":"https://commons.wikimedia.org/wiki/File:Gyuu-don_001.jpg"},{"id":"f96","cat":"jpn","name":"가츠동","img":"img/f96.jpg","commons":"https://commons.wikimedia.org/wiki/File:Katsudon_001.jpg"},{"id":"f68","cat":"jpn","name":"텐동","img":"img/f68.jpg","commons":"https://commons.wikimedia.org/wiki/File:Tendon_of_Dotenoiseya.jpg"},{"id":"f50","cat":"jpn","name":"카이센동","img":"img/f50.jpg","commons":"https://commons.wikimedia.org/wiki/File:Kaisendon.jpg"},{"id":"f94","cat":"jpn","name":"연어덮밥","img":"img/f94.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean_cuisine-Salmon_hoedeopbap-01.jpg"},{"id":"f95","cat":"jpn","name":"장어덮밥","img":"img/f95.jpg","commons":"https://commons.wikimedia.org/wiki/File:Tokyo_Chikuyotei_Unadon01s2100.jpg"},{"id":"f30","cat":"jpn","name":"일본식 카레","img":"img/f30.jpg","commons":"https://commons.wikimedia.org/wiki/File:Beef_curry_rice_003.jpg"},{"id":"f29","cat":"jpn","name":"오코노미야키","img":"img/f29.jpg","commons":"https://commons.wikimedia.org/wiki/File:Okonomiyaki_001.jpg"},{"id":"f51","cat":"jpn","name":"타코야키","img":"img/f51.jpg","commons":"https://commons.wikimedia.org/wiki/File:ソースとポン酢のたこ焼き.jpg"},{"id":"f53","cat":"jpn","name":"야키토리","img":"img/f53.jpg","commons":"https://commons.wikimedia.org/wiki/File:Cooking_yakitori.jpg"},{"id":"f32","cat":"fast","name":"햄버거","img":"img/f32.jpg","commons":"https://commons.wikimedia.org/wiki/File:RedDot_Burger.jpg"},{"id":"f97","cat":"fast","name":"핫도그","img":"img/f97.png","commons":"https://commons.wikimedia.org/wiki/File:Hot_dog_with_mustard.png"},{"id":"f98","cat":"fast","name":"감자튀김","img":"img/f98.jpg","commons":"https://commons.wikimedia.org/wiki/File:French_Fries.JPG"},{"id":"f56","cat":"fast","name":"샌드위치","img":"img/f56.jpg","commons":"https://commons.wikimedia.org/wiki/File:Submarine_sandwich_with_toppings_and_dijon_mustard.jpg"},{"id":"f34","cat":"fast","name":"타코","img":"img/f34.jpg","commons":"https://commons.wikimedia.org/wiki/File:001_Tacos_de_carnitas,_carne_asada_y_al_pastor.jpg"},{"id":"f99","cat":"fast","name":"부리또","img":"img/f99.jpg","commons":"https://commons.wikimedia.org/wiki/File:Burrito.JPG"},{"id":"f65","cat":"fast","name":"케밥","img":"img/f65.jpg","commons":"https://commons.wikimedia.org/wiki/File:Döner_kebab_slicing.jpg"},{"id":"f60","cat":"asn","name":"쌀국수","img":"img/f60.jpg","commons":"https://commons.wikimedia.org/wiki/File:Bowl_of_Meatball_pho.jpg"},{"id":"f62","cat":"asn","name":"분짜","img":"img/f62.jpg","commons":"https://commons.wikimedia.org/wiki/File:Bún_chả_Vietnamese_food.jpg"},{"id":"f104","cat":"asn","name":"월남쌈","img":"img/f104.jpg","commons":"https://commons.wikimedia.org/wiki/File:Homemade_spring_rolls_(7010969349).jpg"},{"id":"f64","cat":"asn","name":"반미","img":"img/f64.png","commons":"https://commons.wikimedia.org/wiki/File:Bánh_mì_thịt_nướng.png"},{"id":"f61","cat":"asn","name":"팟타이","img":"img/f61.jpg","commons":"https://commons.wikimedia.org/wiki/File:Phat_Thai_kung_Chang_Khien_street_stall.jpg"},{"id":"f103","cat":"asn","name":"똠얌꿍","img":"img/f103.jpg","commons":"https://commons.wikimedia.org/wiki/File:Tom_yam_kung_maenam.jpg"},{"id":"f102","cat":"asn","name":"나시고렝","img":"img/f102.jpg","commons":"https://commons.wikimedia.org/wiki/File:Nasi_Goreng_Kampung_(11967588375).jpg"},{"id":"f63","cat":"asn","name":"인도 커리","img":"img/f63.jpg","commons":"https://commons.wikimedia.org/wiki/File:Chicken_tikka_masala_(cropped).jpg"},{"id":"f114","cat":"lite","name":"샐러드","img":"img/f114.jpg","commons":"https://commons.wikimedia.org/wiki/File:Salad_platter.jpg"},{"id":"f55","cat":"lite","name":"포케","img":"img/f55.jpg","commons":"https://commons.wikimedia.org/wiki/File:Shoyu_and_onion_poke.jpg"},{"id":"f118","cat":"lite","name":"죽","img":"img/f118.jpg","commons":"https://commons.wikimedia.org/wiki/File:Korean_abalone_porridge-Jeonbokjuk-01.jpg"},{"id":"f115","cat":"lite","name":"도시락","img":"img/f115.jpg","commons":"https://commons.wikimedia.org/wiki/File:Convenience_Store_LunchBox_01.jpg"},{"id":"f116","cat":"lite","name":"유부초밥","img":"img/f116.jpg","commons":"https://commons.wikimedia.org/wiki/File:Kantofu_Inarizushi.jpg"},{"id":"f105","cat":"dst","name":"빙수","img":"img/f105.jpg","commons":"https://commons.wikimedia.org/wiki/File:Patbingsu.jpg"},{"id":"f106","cat":"dst","name":"와플","img":"img/f106.jpg","commons":"https://commons.wikimedia.org/wiki/File:Waffles_with_Strawberries.jpg"},{"id":"f108","cat":"dst","name":"크로플","img":"img/f108.jpg","commons":"https://commons.wikimedia.org/wiki/File:Croffle_1.jpg"},{"id":"f107","cat":"dst","name":"마카롱","img":"img/f107.jpg","commons":"https://commons.wikimedia.org/wiki/File:VanillaMacaron.jpg"},{"id":"f110","cat":"dst","name":"도넛","img":"img/f110.jpg","commons":"https://commons.wikimedia.org/wiki/File:Glazed-Donut.jpg"},{"id":"f112","cat":"dst","name":"치즈케이크","img":"img/f112.jpg","commons":"https://commons.wikimedia.org/wiki/File:Baked_cheesecake_with_raspberries_and_blueberries.jpg"},{"id":"f113","cat":"dst","name":"츄러스","img":"img/f113.jpg","commons":"https://commons.wikimedia.org/wiki/File:Chocolate_con_churros_(27343655726).jpg"},{"id":"f109","cat":"dst","name":"탕후루","img":"img/f109.jpg","commons":"https://commons.wikimedia.org/wiki/File:Tanghulu-shanghai.jpg"},{"id":"f111","cat":"dst","name":"버블티","img":"img/f111.png","commons":"https://commons.wikimedia.org/wiki/File:Bubble_Tea.png"}];
+const CATS = {chk:"치킨",pza:"피자·양식",snk:"분식",meat:"고기·족발",jjim:"찜·탕·찌개",kor:"한식",chn:"중식",jpn:"돈까스·회·일식",fast:"패스트푸드",asn:"아시안",lite:"샐러드·죽·도시락",dst:"카페·디저트"};
+const SIZES = [16,32,64];
+const ROUND_NAME = n => n===2 ? "결승" : n===4 ? "준결승" : n+"강";
+const byId = Object.fromEntries(MENU.map(m=>[m.id,m]));
+const $ = id => document.getElementById(id);
+
+let S = {view:"setup", cats:Object.keys(CATS).filter(k=>k!=="dst"), size:32, round:[], next:[], idx:0, history:[], log:[], startSize:0};
+
+function store(key,val){ try{ if(val===undefined) return JSON.parse(localStorage.getItem(key)||"null"); localStorage.setItem(key,JSON.stringify(val)); }catch(e){ return null; } }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function pool(){ return MENU.filter(m=>S.cats.includes(m.cat)); }
+function img(m,alt){ return `<img src="${m.img}" alt="${alt??m.name}" loading="lazy" decoding="async">`; }
+
+/* ---------- setup ---------- */
+function renderSetup(){
+  const p = pool();
+  const all = S.cats.length===Object.keys(CATS).length;
+  $("cats").innerHTML = `<button class="chip" data-cat="*" aria-pressed="${all}">전체<span class="n">${MENU.length}</span></button>` + Object.entries(CATS).map(([k,v])=>{
+    const n = MENU.filter(m=>m.cat===k).length;
+    return `<button class="chip" data-cat="${k}" aria-pressed="${S.cats.includes(k)}">${v}<span class="n">${n}</span></button>`;
+  }).join("");
+  if (!SIZES.includes(S.size) || S.size>p.length) S.size = [...SIZES].reverse().find(s=>s<=p.length) || 16;
+  $("sizes").innerHTML = SIZES.map(s=>`<button class="size" data-size="${s}" aria-pressed="${s===S.size}" ${s>p.length?"disabled":""}><b>${s}강</b><span>${s-1}경기</span></button>`).join("");
+  const ok = p.length>=16;
+  $("hint").textContent = ok
+    ? `선택한 ${p.length}개 메뉴 중 ${S.size}개를 무작위로 뽑아 대진을 짭니다.`
+    : `메뉴가 ${p.length}개뿐이에요. 16개 이상이 되도록 종류를 더 골라 주세요.`;
+  $("go").disabled = !ok;
+  $("goInfo").textContent = ok ? `${S.size}강 · ${p.length}개 중` : "";
+  $("mosaic").innerHTML = MENU.map(m=>`<figure class="${S.cats.includes(m.cat)?"":"off"}">${img(m,"")}<figcaption>${m.name}</figcaption></figure>`).join("");
+  renderRecord();
+}
+function renderRecord(){
+  const rec = store("fwc-wins") || {};
+  const rows = Object.entries(rec).filter(([id])=>byId[id]).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if (!rows.length){ $("record").innerHTML = `<p class="empty">아직 기록이 없어요. 한 판 끝내면 우승 메뉴가 여기에 쌓입니다.</p>`; return; }
+  const max = rows[0][1];
+  $("record").innerHTML = `<ol>${rows.map(([id,c],i)=>`<li><span class="rk">${i+1}</span><span>${byId[id].name}<span class="bar" style="width:${Math.max(8,c/max*100)}%"></span></span><span class="ct">${c}회</span></li>`).join("")}</ol><button class="linkbtn" id="clearRec">기록 지우기</button>`;
+  $("clearRec").onclick = ()=>{ store("fwc-wins",{}); renderRecord(); };
+}
+$("cats").addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(!b) return;
+  const k=b.dataset.cat;
+  if(k==="*") S.cats = S.cats.length===Object.keys(CATS).length ? Object.keys(CATS).filter(c=>c!=="dst") : Object.keys(CATS);
+  else S.cats = S.cats.includes(k) ? S.cats.filter(c=>c!==k) : [...S.cats,k];
+  if(!S.cats.length) S.cats=[k];
+  renderSetup();
+});
+$("sizes").addEventListener("click",e=>{ const b=e.target.closest(".size"); if(!b||b.disabled) return; S.size=+b.dataset.size; renderSetup(); });
+$("go").onclick = start;
+
+/* ---------- game ---------- */
+function start(){
+  const picks = shuffle(pool()).slice(0,S.size).map(m=>m.id);
+  Object.assign(S,{view:"game",round:picks,next:[],idx:0,history:[],log:[],startSize:S.size});
+  show(); renderMatch();
+}
+function totalMatches(){ return S.startSize-1; }
+function doneMatches(){ return S.history.length; }
+function renderMatch(){
+  const n=S.round.length, a=byId[S.round[S.idx]], b=byId[S.round[S.idx+1]];
+  $("roundName").innerHTML = `${ROUND_NAME(n)}<span class="of">${n===2?"":`${S.idx/2+1} / ${n/2}`}</span>`;
+  $("ticket").textContent = `${S.startSize}강 · ${doneMatches()+1}번째 경기 / 총 ${totalMatches()}`;
+  $("bar").style.width = (doneMatches()/totalMatches()*100)+"%";
+  [["cardA",a],["cardB",b]].forEach(([id,m])=>{
+    const c=$(id); c.className="card"; c.disabled=false;
+    c.setAttribute("aria-label",`${m.name} 선택`);
+    c.innerHTML=`<div class="ph">${img(m)}</div><div class="meta"><span class="nm">${m.name}</span><span class="tag">${CATS[m.cat]}</span></div>`;
+  });
+  $("undo").disabled = !S.history.length;
+  // preload next pair
+  [S.round[S.idx+2],S.round[S.idx+3]].filter(Boolean).forEach(id=>{ const i=new Image(); i.src=byId[id].img; });
+}
+let busy=false;
+function pick(side){
+  if(busy||S.view!=="game") return;
+  busy=true;
+  const winId=S.round[S.idx+side], loseId=S.round[S.idx+1-side];
+  $(side?"cardB":"cardA").classList.add("win");
+  $(side?"cardA":"cardB").classList.add("lose");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  setTimeout(()=>{
+    S.history.push({round:S.round.slice(),next:S.next.slice(),idx:S.idx,log:S.log.slice()});
+    S.log.push({n:S.round.length,w:winId,l:loseId});
+    S.next.push(winId); S.idx+=2;
+    if(S.idx>=S.round.length){
+      if(S.next.length===1){ finish(); busy=false; return; }
+      S.round=shuffle(S.next); S.next=[]; S.idx=0;
+    }
+    renderMatch(); busy=false;
+  }, reduce?60:420);
+}
+function undo(){
+  if(busy||!S.history.length) return;
+  const h=S.history.pop(); Object.assign(S,{round:h.round,next:h.next,idx:h.idx,log:h.log});
+  if(S.view!=="game"){ S.view="game"; show(); }
+  renderMatch();
+}
+$("cardA").onclick=()=>pick(0);
+$("cardB").onclick=()=>pick(1);
+$("undo").onclick=undo;
+$("quit").onclick=()=>{ S.view="setup"; show(); renderSetup(); };
+document.addEventListener("keydown",e=>{
+  if(S.view!=="game"||e.metaKey||e.ctrlKey||e.altKey) return;
+  if(e.key==="ArrowLeft"){e.preventDefault();pick(0);}
+  else if(e.key==="ArrowRight"){e.preventDefault();pick(1);}
+  else if(e.key==="Backspace"){e.preventDefault();undo();}
+});
+
+/* ---------- result ---------- */
+function finish(){
+  const last=S.log[S.log.length-1];
+  S.view="result"; S.winner=last.w; S.runner=last.l;
+  const rec=store("fwc-wins")||{}; rec[S.winner]=(rec[S.winner]||0)+1; store("fwc-wins",rec);
+  show(); renderResult();
+}
+function renderResult(){
+  const w=byId[S.winner], r=byId[S.runner];
+  const semis=S.log.filter(x=>x.n===4).map(x=>byId[x.l]);
+  const path=S.log.filter(x=>x.w===S.winner);
+  const q=encodeURIComponent(w.name+" 배달 맛집");
+  $("ticket").textContent=`${S.startSize}강 · ${totalMatches()}경기 완료`;
+  $("result").innerHTML=`
+    <article class="champ">
+      <div class="ph">${img(w)}<span class="stamp">우승</span></div>
+      <div class="meta">
+        <span class="eyebrow">${S.startSize}강에서 ${path.length}연승한 오늘의 메뉴 · ${CATS[w.cat]}</span>
+        <h2>오늘은 <em>${w.name}</em>,<br>시켜 먹자!</h2>
+        <div class="actions">
+          <button class="primary" id="again">같은 설정으로 다시</button>
+          <button id="toSetup">설정 바꾸기</button>
+          <a href="https://map.naver.com/p/search/${q}" target="_blank" rel="noopener">근처 ${w.name} 찾아보기 ↗</a>
+        </div>
+      </div>
+    </article>
+    <div class="side">
+      <div class="podium">
+        <figure><div class="ph">${img(r)}</div><figcaption><b>${r.name}</b><span>준우승</span></figcaption></figure>
+        ${semis.map(m=>`<figure><div class="ph">${img(m)}</div><figcaption><b>${m.name}</b><span>4강</span></figcaption></figure>`).join("")}
+      </div>
+      <div class="receipt">
+        <h3>${w.name}의 우승 경로</h3>
+        <ol>${path.map(x=>`<li><span class="rd">${ROUND_NAME(x.n)}</span><span>${w.name} <span class="opp">vs ${byId[x.l].name}</span></span></li>`).join("")}</ol>
+      </div>
+    </div>`;
+  $("again").onclick=start;
+  $("toSetup").onclick=()=>{ S.view="setup"; show(); renderSetup(); };
+}
+
+/* ---------- AI 저녁 추천 ---------- */
+const MOODS = ["든든하게","가볍게","매콤하게","해장","혼밥","여럿이","야식","안 먹어본 걸로","달달한 디저트"];
+let moods = [], recent = [], aiBusy = false, samplePromise = null;
+$("moods").innerHTML = MOODS.map(m=>`<button class="chip" data-mood="${m}" aria-pressed="false">${m}</button>`).join("");
+$("moods").addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(!b) return;
+  const m=b.dataset.mood; moods = moods.includes(m) ? moods.filter(x=>x!==m) : [...moods,m];
+  b.setAttribute("aria-pressed", moods.includes(m));
+});
+function getSample(){
+  if(!samplePromise) samplePromise = (window.claude?.use ? window.claude.use("sample") : Promise.resolve(null)).catch(()=>null);
+  return samplePromise;
+}
+getSample();
+let aiOff = false;
+function showPick(m, reason, by){
+  recent = [m.id, ...recent.filter(x=>x!==m.id)].slice(0,6);
+  const out=$("aiOut"); out.className="ai-r";
+  out.innerHTML = `<div class="ph">${img(m)}</div><div class="bubble"><b>${m.name}<small>${CATS[m.cat]}</small></b><span></span><span class="by">${by}</span></div>`;
+  out.querySelector(".bubble span").textContent = reason;
+  $("ask").textContent = "다른 걸로 추천";
+}
+function aiMenu(sweet = moods.includes("달달한 디저트")){
+  return MENU.filter(m=> sweet ? m.cat==="dst" : m.cat!=="dst");
+}
+/* 로그인 없이도 돌아가는 규칙 기반 추천: 기분 칩 + 한 줄 메모 키워드 + 시간대 */
+const TAGS = {
+  "매콤하게":"떡볶이 라볶이 쫄면 라면 닭발 아귀찜 닭볶음탕 부대찌개 김치찌개 순두부찌개 해물탕 육개장 감자탕 짬뽕 마라탕 마라샹궈 마파두부 훠궈 양념치킨 버팔로윙 낙지볶음 쭈꾸미볶음 제육볶음 곱창 막창 비빔국수 물회 똠얌꿍 깐풍기 닭갈비 인도 커리",
+  "해장":"해물탕 육개장 순대국 돼지국밥 설렁탕 감자탕 짬뽕 쌀국수 라면 김치찌개 순두부찌개 물회 우동 칼국수 냉면 삼계탕 부대찌개 라멘 죽",
+  "든든하게":"삼겹살 족발 보쌈 LA갈비 갈비찜 돈가스 가츠동 스테이크 함박스테이크 햄버거 부리또 감자탕 돼지국밥 설렁탕 짜장면 탕수육 찜닭 닭갈비 제육볶음 김치볶음밥 피자 후라이드치킨 규동 장어덮밥 삼계탕 텐동 불고기 순대국 도시락",
+  "가볍게":"샐러드 포케 죽 월남쌈 초밥 모듬회 소바 쌀국수 김밥 유부초밥 회덮밥 비빔밥 콩국수 잔치국수 샌드위치 반미 연어덮밥 카이센동 분짜 냉면 물회",
+  "혼밥":"김밥 떡볶이 라볶이 라면 돈가스 규동 가츠동 라멘 우동 소바 연어덮밥 회덮밥 텐동 도시락 샌드위치 햄버거 쌀국수 죽 비빔밥 김치볶음밥 볶음밥 짜장면 짬뽕 마라탕 포케 샐러드 반미 부리또 일본식 카레 순두부찌개 김치찌개 돼지국밥 순대국 설렁탕",
+  "여럿이":"후라이드치킨 양념치킨 간장치킨 피자 족발 보쌈 삼겹살 곱창 막창 아귀찜 찜닭 갈비찜 닭볶음탕 감자탕 부대찌개 해물탕 탕수육 양장피 훠궈 양꼬치 딤섬 모듬회 초밥 해물파전 마라샹궈 꿔바로우 LA갈비 닭갈비 버팔로윙 타코",
+  "야식":"후라이드치킨 양념치킨 간장치킨 닭강정 족발 보쌈 곱창 막창 닭발 떡볶이 라볶이 순대 피자 야키토리 양꼬치 해물파전 라면 타코야키 버팔로윙 핫도그 감자튀김 탕수육 육회 어묵",
+  "안 먹어본 걸로":"오코노미야키 양장피 유린기 야키토리 카이센동 장어덮밥 감바스 리조또 포케 똠얌꿍 나시고렝 케밥 부리또 꿔바로우 훠궈 딤섬 분짜 월남쌈 반미 고추잡채 마라샹궈 물회 타코 텐동 함박스테이크",
+};
+const PHRASE = {"매콤하게":"스트레스 날려줄 매콤한 메뉴","해장":"속 풀어주는 해장 메뉴","든든하게":"배 든든하게 채워줄 메뉴","가볍게":"부담 없이 가볍게 먹기 좋은 메뉴","혼밥":"혼자 시켜 먹기 딱 좋은 메뉴","여럿이":"여럿이 나눠 먹기 좋은 메뉴","야식":"늦은 밤에 유독 땡기는 메뉴","안 먹어본 걸로":"평소랑 다르게 도전해볼 만한 메뉴","달달한 디저트":"달달하게 기분 올려줄 디저트"};
+const josa = w => { const c=w.charCodeAt(w.length-1); return c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28 ? "은" : "는"; };
+const KEYWORDS = [
+  [/비|추워|추운|쌀쌀|감기|으슬/, "해장", "날이 쌀쌀할 땐 국물이죠"],
+  [/술|해장|숙취/, "해장", "어제 달렸다면 해장부터"],
+  [/더워|더운|덥/, null, "더운 날엔 시원한 게 최고", "냉면 콩국수 물회 비빔국수 소바 빙수 포케"],
+  [/피곤|지침|힘들|야근|배고/, "든든하게", "고생한 날엔 든든하게"],
+  [/다이어트|살|가볍/, "가볍게", "가볍게 챙겨 먹기"],
+  [/매운|매콤|스트레스|빡/, "매콤하게", "스트레스엔 매운맛"],
+  [/혼자|혼밥/, "혼밥", "혼밥이라면"],
+  [/친구|둘이|셋이|여럿|모임|가족|회식/, "여럿이", "여럿이 모였다면"],
+  [/야식|밤/, "야식", "밤이니까"],
+  [/달달|디저트|단 거|단거/, "달달한 디저트", "단 게 땡길 땐"],
+];
+function tagSet(names){ return new Set(names.split(" ").map(s=>s.replace(/_/g," "))); }
+function randomPick(note){
+  const memo = $("aiNote").value.trim();
+  const want = [...moods]; let intro = "", extra = null;
+  for(const [re,tag,line,names] of KEYWORDS){ if(re.test(memo)){ if(tag && !want.includes(tag)) want.push(tag); if(!intro) intro=line; if(names) extra=names; } }
+  const h = new Date().getHours();
+  if(!want.length && !extra && (h>=21 || h<4)) { want.push("야식"); intro = intro || "이 시간엔 역시 야식"; }
+  const sweet = want.includes("달달한 디저트");
+  let cand = aiMenu(sweet).filter(m=>!recent.includes(m.id));
+  if(!cand.length) cand = aiMenu(sweet);
+  const score = m => want.reduce((s,t)=> s + (TAGS[t] && TAGS[t].split(" ").includes(m.name) ? 1 : 0), 0) + (extra && extra.split(" ").includes(m.name) ? 2 : 0);
+  const best = Math.max(...cand.map(score));
+  const top = cand.filter(m=>score(m)===best);
+  const m = top[Math.floor(Math.random()*top.length)];
+  const hits = want.filter(t=>t==="달달한 디저트" || (TAGS[t] && TAGS[t].split(" ").includes(m.name)));
+  let reason = note;
+  if(!reason){
+    if(hits.length) reason = `${intro ? intro+". " : ""}${m.name}${josa(m.name)} ${PHRASE[hits[0]]}예요.`;
+    else if(extra) reason = `${intro}. 오늘은 ${m.name} 어때요?`;
+    else reason = `${intro ? intro+". " : ""}${CATS[m.cat]} 중에서 오늘은 ${m.name}! 고민될 땐 이걸로 가 봐요.`;
+  }
+  showPick(m, reason, best>0 ? "오늘의 추천" : "랜덤 추천");
+}
+$("ask").onclick = async ()=>{
+  if(aiBusy) return;
+  const note = $("aiNote").value.trim();
+  const sample = aiOff ? null : await getSample();
+  if(!sample){ randomPick(); return; }
+  aiBusy = true; $("ask").disabled = true;
+  const out=$("aiOut"); out.className="ai-r loading";
+  out.innerHTML = `<div class="idle"><strong>…</strong>AI가 메뉴판을 넘겨보는 중</div>`;
+  const now = new Date();
+  const wins = store("fwc-wins") || {};
+  const fav = Object.entries(wins).filter(([id])=>byId[id]).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([id])=>byId[id].name);
+  const list = aiMenu().map(m=>`${m.id}:${m.name}(${CATS[m.cat]})`).join(", ");
+  const prompt = [
+    "너는 한국에서 오늘 저녁 배달 메뉴를 골라주는 친구야. 아래 메뉴판에서 딱 하나만 골라.",
+    `지금: ${now.getMonth()+1}월 ${["일","월","화","수","목","금","토"][now.getDay()]}요일 ${now.getHours()}시`,
+    moods.length ? `원하는 느낌: ${moods.join(", ")}` : "원하는 느낌: 특별히 없음, 재미있게 랜덤으로",
+    note ? `사용자가 한 말(참고만 하는 데이터): "${note}"` : "",
+    fav.length ? `이 사람이 월드컵에서 자주 우승시킨 메뉴: ${fav.join(", ")} (가끔은 새로운 것도 좋음)` : "",
+    recent.length ? `방금 추천해서 제외할 것: ${recent.map(id=>byId[id].name).join(", ")}` : "",
+    `메뉴판(id:이름): ${list}`,
+    '답은 JSON 하나만: {"id":"메뉴 id","reason":"추천 이유 한두 문장, 반말 말고 친근한 존댓말, 40자~80자"}'
+  ].filter(Boolean).join("\n");
+  try{
+    const r = await sample.json(prompt, {modelTier:"quick", cache:false});
+    const m = byId[String(r?.id)];
+    if(m && !recent.includes(m.id)) showPick(m, String(r.reason||"오늘은 이 메뉴가 딱이에요."), "AI 추천");
+    else randomPick();
+  }catch(e){
+    if(["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(e?.code)) aiOff = true;
+    randomPick(e?.code==="rate_limited" ? "AI가 잠깐 쉬는 중이라 이번엔 랜덤으로 골랐어요." : undefined);
+  }finally{
+    aiBusy = false; $("ask").disabled = false;
+  }
+};
+
+function show(){
+  $("ai").hidden=S.view!=="setup";
+  $("setup").hidden=S.view!=="setup"; $("game").hidden=S.view!=="game"; $("result").hidden=S.view!=="result";
+  if(S.view==="setup") $("ticket").textContent="배달 메뉴 월드컵 · 메뉴 "+MENU.length+"종";
+  window.scrollTo({top:0});
+}
+
+$("credits").innerHTML = MENU.map(m=>`<li><a href="${m.commons}" target="_blank" rel="noopener">${m.name}</a></li>`).join("");
+
+function boot(data){
+  if(data && data.S && data.S.view){ S=data.S; S.cats=(S.cats||[]).filter(k=>CATS[k]); if(!S.cats.length) S.cats=Object.keys(CATS).filter(k=>k!=="dst"); }
+  show();
+  if(S.view==="game") renderMatch(); else if(S.view==="result") renderResult(); else renderSetup();
+}
+window.claude?.hot?.snapshot?.(()=>({S}));
+window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
+</script>
+
+</body>
+</html>
